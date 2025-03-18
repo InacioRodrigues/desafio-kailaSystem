@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload de Arquivo CNAB</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .upload-container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #333;
+    }
+    input[type="file"] {
+      margin-bottom: 20px;
+    }
+    button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #message {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="upload-container">
+    <h1>Upload de Arquivo CNAB</h1>
+    <form id="uploadForm">
+      <input type="file" id="fileInput" accept=".txt" required>
+      <button type="submit">Enviar Arquivo</button>
+    </form>
+    <div id="message"></div>
+  </div>
+
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', async function (event) {
+      event.preventDefault(); // Impede o envio padrão do formulário
+
+      const fileInput = document.getElementById('fileInput');
+      const messageDiv = document.getElementById('message');
+
+      if (fileInput.files.length === 0) {
+        messageDiv.textContent = 'Por favor, selecione um arquivo.';
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('http://localhost:3000/cnab/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          messageDiv.textContent = result.message || 'Arquivo enviado com sucesso!';
+        } else {
+          const error = await response.json();
+          messageDiv.textContent = `Erro: ${error.message || 'Falha ao enviar o arquivo.'}`;
+        }
+      } catch (error) {
+        messageDiv.textContent = `Erro: ${error.message || 'Falha na comunicação com o servidor.'}`;
+      }
+    });
+  </script>
+</body>
+</html>
